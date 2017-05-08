@@ -266,23 +266,31 @@
                 </p>
             </div>
             <div class="col-sm-4">
-                <img src="https://datacenter.xyz/wp-content/uploads/2016/05/liberty-global-icon-network.png" height="500" width="600">
+                <img src="https://datacenter.xyz/wp-content/uploads/2016/05/liberty-global-icon-network.png"
+                     height="500" width="600">
             </div>
         </div>
     </div>
     <div id="display" class="container-fluid text-center bg-grey">
         <h2>DISPLAY GRAPH</h2>
-        <div>
+        <div class="dropdown">
             <form action="/#display" method="post">
                 <div class="input-group">
+                    <datalist  id="list_website">
+                        {% for website in list_website %}
+                        <option value={{website}}>
+                        {% endfor %} 
+                    </datalist>
                     {% csrf_token %}
-                    <input type="text" name="graph_text" class="form-control" size="50" placeholder="website" required>
+                    <input type="text" name="graph_text" list="list_website" class="form-control" placeholder="website" required>
                     <div class="input-group-btn">
                         <button type="submit" class="btn btn-danger">Update</button>
                     </div>
                 </div>
             </form>
-            <svg width="800" height="600"></svg>
+        </div>
+        <div>
+            <svg width="960" height="600"></svg>
             <script>
                 var svg = d3.select("svg"),
                     width = +svg.attr("width"),
@@ -380,7 +388,7 @@
             </script>
         </div>
     </div>
-    <div id="find" class="container-fluid">
+    <div id="find" class="container-fluid" style="height: 1000px">
         <div class="text-center">
             <h2>Finding Content</h2>
             <form action="/#find" method="post">
@@ -401,9 +409,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for data_list in index_dict %}
+                            {% for value in index_dict %}
                             <tr>
-                                {% for data in data_list %}
+                                {% for data in value %}
                                 <td>{{ data }}</td>
                                 {% endfor %}
                             </tr>

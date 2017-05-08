@@ -1,6 +1,5 @@
 from __future__ import print_function
 from __future__ import unicode_literals
-# from django.db import models
 from urlparse import urlparse
 import networkx
 import os
@@ -11,17 +10,29 @@ import operator
 class SpiderGraph:
     def __init__(self):
         self.indexing_dict = {}
+        self.list_website = []
+        self.pack_indexing()
+        self.refresh_weblist()
+
+    def pack_indexing(self):
         for file_name in os.listdir(os.getcwd() + "/indexing"):
             file_read = open(os.getcwd() + "/indexing/" + file_name, "r+")
             self.indexing_dict.update(json.loads(file_read.read()))
             file_read.close()
+
+    def refresh_weblist(self):
+        self.list_website = []
+        for file_name in os.listdir(os.getcwd() + "/websiteList"):
+            name = file_name.replace("_", ".").replace("#", "/").replace("$", ":").replace(".json", "")
+            self.list_website.append(name)
+        return self.list_website
 
     def set_graph_dict(self, website):
         website = self.set_website(website)
         file_name = self.get_file_name(website)
         json_dict = self.get_json_dict(file_name)
         if json_dict == "no website":
-            return {"nodes": [], "links": []}
+            return {}
         graph = self.get_graph(website, json_dict)
         used_dict = self.set_n_used(website, json_dict)
         node_list, edge_list = self.get_dict_for_website(graph, used_dict)
@@ -37,7 +48,7 @@ class SpiderGraph:
 
     def get_file_name(self, website):
         website = self.website_formatter(website)
-        return website.replace(".", "_").replace("/", "#") + ".json"
+        return website.replace(".", "_").replace("/", "#").replace(":", "$") + ".json"
 
     def get_json_dict(self, file_name):
         if file_name not in os.listdir(os.getcwd() + "/websiteList"):
@@ -52,7 +63,7 @@ class SpiderGraph:
 
     def website_formatter(self, website):
         parsed_uri = urlparse(website)
-        return ('{uri.netloc}{uri.path}'.format(uri=parsed_uri)).strip("/")
+        return ('{uri.scheme}://{uri.netloc}{uri.path}'.format(uri=parsed_uri)).strip("/")
 
     def get_graph(self, root_website, json_dict):
         g = networkx.DiGraph()
@@ -148,5 +159,4 @@ class SpiderGraph:
                         n_used = data_pack[1]["used"]  # get number of used
                         n_word = data_pack[1]["word"]  # get number of word
                         dict_index.append([website, n_used, n_word])
-        print(dict_index)
         return dict_index
